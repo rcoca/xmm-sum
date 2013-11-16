@@ -209,11 +209,11 @@ def CreateXLS(xmltree):
             sh.write(lineNo,Depth+(colNo-2*depth),dur,style)
             if not node.hasChildNodes():
                 sh.write(lineNo,Depth+depth,dur,style)
-                sh.write(lineNo,Depth+depth+1,str(float(dur)*7.0/5.0),style)
+                sh.write(lineNo,Depth+depth+1,float(dur)*7.0/5.0,style)
                 startname=chr(ord('A')+Depth+depth+2)
                 colname=chr(ord('A')+Depth+depth+1)
                 style.num_format_str = 'mm/dd/yyyy'
-                formula=pyExcelerator.Formula('$%s2+$%s%d'%(startname,colname,lineNo+1))
+                formula=pyExcelerator.Formula('$%s2+SUM($%s$1:$%s$%d)'%(startname,colname,colname,lineNo+1))
                 sh.write(lineNo,Depth+depth+2,formula,style)
                 sh.col(Depth+depth+2).width = 0x24E1/2
         style.borders.right  = pyExcelerator.Formatting.Borders.NO_LINE
@@ -261,7 +261,7 @@ if __name__=='__main__':
     if len(flist)>0:f=flist[0]
     parser=OptionParser()
     parser.add_option('-u','--update-sum',dest='USum')
-    parser.add_option('-x','--xls',dest='Text')#default =f
+    parser.add_option('-x','--xls',dest='Text',default =f)
     (options,args) = parser.parse_args()
     if not options.USum and not options.Text:
         parser.print_help()
