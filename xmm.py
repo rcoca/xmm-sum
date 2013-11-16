@@ -261,7 +261,7 @@ if __name__=='__main__':
     if len(flist)>0:f=flist[0]
     parser=OptionParser()
     parser.add_option('-u','--update-sum',dest='USum')
-    parser.add_option('-t','--text',dest='Text')#default =f
+    parser.add_option('-x','--xls',dest='Text')#default =f
     (options,args) = parser.parse_args()
     if not options.USum and not options.Text:
         parser.print_help()
