@@ -181,7 +181,7 @@ def CreateXLS(xmltree):
 
     for i in range(Depth-depth):sh.write(0,i,'Level %d'%(i+1),style)
     #sh.write(0,Depth-depth,"Schedule:",style)
-    sh.write(0,Depth,"Detailed Schedule:",style)
+    sh.write(0,Depth,"Detailed:",style)
     sh.write(0,Depth+2,"StartDate",style)
     style.num_format_str = 'mm/dd/yyyy'
     
@@ -217,11 +217,12 @@ def CreateXLS(xmltree):
                 style.num_format_str = 'mm/dd/yyyy'
                 formula=pyExcelerator.Formula('$%s2+SUM($%s$1:$%s$%d)'%(startname,colname,colname,lineNo+1))
                 sh.write(lineNo,Depth+2,formula,style)
-                sh.col(Depth+2).width = 0x24E1/2
+
+                sh.col(Depth+2).width = 0x24E1/3
         style.borders.right  = pyExcelerator.Formatting.Borders.THIN
         style.borders.left  = pyExcelerator.Formatting.Borders.THIN
         sh.write(lineNo,(colNo-depth),node_text,style)
-        sh.col(colNo-depth).width = 0x24E1
+        sh.col(colNo-depth).width = 0x24E1/2
         lineNo+=1
     return wb
 
