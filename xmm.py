@@ -181,11 +181,11 @@ def CreateXLS(xmltree):
 
     for i in range(Depth-depth):sh.write(0,i,'Level %d'%(i+1),style)
     #sh.write(0,Depth-depth,"Schedule:",style)
-    sh.write(0,Depth+depth,"Detailed Schedule:",style)
-    sh.write(0,Depth+depth+2,"StartDate",style)
+    sh.write(0,Depth,"Detailed Schedule:",style)
+    sh.write(0,Depth+2,"StartDate",style)
     style.num_format_str = 'mm/dd/yyyy'
     
-    sh.write(1,Depth+depth+2,datetime.datetime.now(),style)
+    sh.write(1,Depth+2,datetime.datetime.now(),style)
     #print "Depth=%d,%d"%(Depth,depth)
     for node,colNo in PreOrderWalkTree(xmltree):
         if not isTextNode(node):continue
@@ -210,14 +210,14 @@ def CreateXLS(xmltree):
             #sh.write(lineNo,Depth+(colNo-2*depth),dur,style)
             sh.write(lineNo,(colNo-depth)+1,dur,style)
             if not node.hasChildNodes():
-                sh.write(lineNo,Depth+depth,dur,style)
-                sh.write(lineNo,Depth+depth+1,float(dur)*7.0/5.0,style)
-                startname=chr(ord('A')+Depth+depth+2)
-                colname=chr(ord('A')+Depth+depth+1)
+                sh.write(lineNo,Depth,dur,style)
+                sh.write(lineNo,Depth+1,float(dur)*7.0/5.0,style)
+                startname=chr(ord('A')+Depth+2)
+                colname=chr(ord('A')+Depth+1)
                 style.num_format_str = 'mm/dd/yyyy'
                 formula=pyExcelerator.Formula('$%s2+SUM($%s$1:$%s$%d)'%(startname,colname,colname,lineNo+1))
-                sh.write(lineNo,Depth+depth+2,formula,style)
-                sh.col(Depth+depth+2).width = 0x24E1/2
+                sh.write(lineNo,Depth+2,formula,style)
+                sh.col(Depth+2).width = 0x24E1/2
         style.borders.right  = pyExcelerator.Formatting.Borders.THIN
         style.borders.left  = pyExcelerator.Formatting.Borders.THIN
         sh.write(lineNo,(colNo-depth),node_text,style)
@@ -263,7 +263,7 @@ if __name__=='__main__':
     if len(flist)>0:f=flist[0]
     parser=OptionParser()
     parser.add_option('-u','--update-sum',dest='USum')
-    parser.add_option('-x','--xls',dest='Text',default =f)
+    parser.add_option('-x','--xls',dest='Text')#,default =f)
     (options,args) = parser.parse_args()
     if not options.USum and not options.Text:
         parser.print_help()
