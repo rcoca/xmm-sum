@@ -171,7 +171,7 @@ def CreateXLS(xmltree):
     style   = pyExcelerator.XFStyle()
 
     style.font.bold=True
-    style.font.outline=True
+    #style.font.outline=True
     style.font.underline=True
     style.font.name='Arial'
     style.borders.right  = pyExcelerator.Formatting.Borders.THICK
@@ -180,7 +180,7 @@ def CreateXLS(xmltree):
     style.borders.left   = pyExcelerator.Formatting.Borders.THICK
 
     for i in range(Depth-depth):sh.write(0,i,'Level %d'%(i+1),style)
-    sh.write(0,Depth-depth,"Schedule:",style)
+    #sh.write(0,Depth-depth,"Schedule:",style)
     sh.write(0,Depth+depth,"Detailed Schedule:",style)
     sh.write(0,Depth+depth+2,"StartDate",style)
     style.num_format_str = 'mm/dd/yyyy'
@@ -201,12 +201,14 @@ def CreateXLS(xmltree):
         if m:
             dur=ConvertToDay(m.group(2)).replace('d','')
             node_text=m.group(1)
-            for i in range(Depth+(colNo-2*depth)+1):
+            #for i in range(Depth+(colNo-2*depth)+1):
+            for i in range((colNo-depth)+1):
                 sh.write(lineNo,i,' ',style)
             style.borders.right  = pyExcelerator.Formatting.Borders.THIN
             style.borders.top    = pyExcelerator.Formatting.Borders.THIN
             style.borders.bottom = pyExcelerator.Formatting.Borders.THIN
-            sh.write(lineNo,Depth+(colNo-2*depth),dur,style)
+            #sh.write(lineNo,Depth+(colNo-2*depth),dur,style)
+            sh.write(lineNo,(colNo-depth)+1,dur,style)
             if not node.hasChildNodes():
                 sh.write(lineNo,Depth+depth,dur,style)
                 sh.write(lineNo,Depth+depth+1,float(dur)*7.0/5.0,style)
@@ -216,7 +218,7 @@ def CreateXLS(xmltree):
                 formula=pyExcelerator.Formula('$%s2+SUM($%s$1:$%s$%d)'%(startname,colname,colname,lineNo+1))
                 sh.write(lineNo,Depth+depth+2,formula,style)
                 sh.col(Depth+depth+2).width = 0x24E1/2
-        style.borders.right  = pyExcelerator.Formatting.Borders.NO_LINE
+        style.borders.right  = pyExcelerator.Formatting.Borders.THIN
         style.borders.left  = pyExcelerator.Formatting.Borders.THIN
         sh.write(lineNo,(colNo-depth),node_text,style)
         sh.col(colNo-depth).width = 0x24E1
