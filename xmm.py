@@ -226,6 +226,42 @@ def CreateXLS(xmltree):
         lineNo+=1
     return wb
 
+def csvdate(d):
+    tformat="%m/%d/%y,%H:%M %p"
+    return d.strftime(tformat)
+
+def add_days(d,days):
+    return d+datetime.timedelta(days=days)
+
+def CreateCSV(xmltree,startdate):
+    sh="Subject,Start Date,Start Time,End Date,End Time,All Day Event,Description,Location,Private\n"
+    depths_start={}
+    depths_start[0]=lastknown=startdate
+    for node,colNo in PreOrderWalkTree(xmltree):
+        
+        depths_start[colNo+1]=depths_start[colNo]#lastknown
+        
+        if not isTextNode(node):continue
+        node_text=node.getAttribute('TEXT').encode('ascii')
+        m=re.search("(^.*)\:\s*([0-9\.]+\s*[dhmw]\s*$)",node_text)
+        
+        if m:
+            node_text=m.group(1)
+            dur=ConvertToDay(m.group(2)).replace('d','')
+            sdate=depths_start[colNo]
+            edate=add_days(depths_start[colNo],float(dur)*7.0/5.0)
+            
+            sh+="{Subject},{Start},{End},{AllDayEvent},{Description},{Location},{Private}\n".\
+              format(Subject=node_text,Start=csvdate(sdate),End=csvdate(edate),\
+                     AllDayEvent="False",Description='"None"',Location='"default"',Private="True")
+            depths_start[colNo]=edate
+            #lastknown=sdate
+            #if not node.hasChildNodes():
+                
+                #dur
+                #float(dur)*7.0/5.0
+    return sh
+        
 def ConvertToDay(arg):
     D={'d':1,'w':5,'h':1.0/8.0,'m':23.0}
     val=arg
@@ -265,19 +301,34 @@ if __name__=='__main__':
     parser=OptionParser()
     parser.add_option('-u','--update-sum',dest='USum')
     parser.add_option('-x','--xls',dest='Text')#,default =f)
+    parser.add_option('-g','--google_cal-csv',dest='gsv')
+    parser.add_option('-s','--start_data',dest='start')#,default=f)
     (options,args) = parser.parse_args()
-    if not options.USum and not options.Text:
+    if not options.USum and not options.Text and not (options.gsv and options.start):
         parser.print_help()
         exit(2)
     elif options.USum:
-	xmltree=minidom.parse(options.USum)
-	UpdateSumEstim(xmltree)
-	mapstring=xmltree.toxml().replace('<?xml version="1.0" ?>','')
-	with open(options.USum,"wt+") as FD:
-	    print >>FD,mapstring
+        xmltree=minidom.parse(options.USum)
+        UpdateSumEstim(xmltree)
+        mapstring=xmltree.toxml().replace('<?xml version="1.0" ?>','')
+        with open(options.USum,"wt+") as FD:
+            print >>FD,mapstring
     elif options.Text:
-	xmltree=minidom.parse(options.Text)
-	UpdateSumEstim(xmltree)
+        xmltree=minidom.parse(options.Text)
+        UpdateSumEstim(xmltree)
         wb=CreateXLS(xmltree)
         outxls=options.Text.replace('.mm','.xls')
         wb.save(outxls)
+    elif options.gsv and options.start:
+        print 80*'*'
+        print "This functionality is roughly a quick-hack and it may still contain bugs"
+        print 80*'*'        
+        tformat = "%m/%d/%y,%H:%M"
+        startdate = datetime.datetime.strptime(options.start, tformat)
+        xmltree=minidom.parse(options.gsv)
+        UpdateSumEstim(xmltree)
+        outcsv=options.gsv.replace('.mm','.csv')
+        csv=CreateCSV(xmltree,startdate)
+        with open(outcsv,"wt+") as FD:
+            print >>FD,csv
+        print "Done, exported to %s."%outcsv
