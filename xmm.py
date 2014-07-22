@@ -136,6 +136,29 @@ def EnumeratePaths(xmltree):
             
     return paths
 
+def path_from_node(leaf):
+    c=leaf
+    newpath=[leaf]
+    while True:
+        if c.parentNode:
+            c=c.parentNode
+            newpath.append(c)
+        else:break
+    newpath=filter(lambda x:isTextNode(x),newpath)
+    return newpath
+
+def text_path_from_node(leaf):
+    c=leaf
+    newpath=[leaf]
+    while True:
+        if c.parentNode:
+            c=c.parentNode
+            newpath.append(c)
+        else:break
+    newpath=filter(lambda x:isTextNode(x),newpath)
+    newpath=map(lambda x:re.search("(^.*)\:\s*([0-9\.]+\s*[dhmw]\s*$)",x.getAttribute('TEXT').encode('ascii')).group(1).strip(),newpath)
+    return newpath[::-1]
+    
 def PreOrderWalkTree(root,depth=0):
     yield root,depth
     if root.hasChildNodes():
@@ -229,14 +252,24 @@ def CreateXLS(xmltree):
 def csvdate(d):
     tformat="%m/%d/%y,%H:%M %p"
     return d.strftime(tformat)
+def csvday(d):
+    tformat="%m/%d/%y"
+    return d.strftime(tformat)
 
 def add_days(d,days):
     return d+datetime.timedelta(days=days)
 
+def add_hours(d,hours):
+    return d+datetime.timedelta(hours=hours)
+
+
+
 def CreateCSV(xmltree,startdate):
-    sh="Subject,Start Date,Start Time,End Date,End Time,All Day Event,Description,Location,Private\n"
+    #sh="Subject,Start Date,Start Time,End Date,End Time,All Day Event,Description,Location,Private\n"
+    sh="Subject,Start Date,Description\n"
     depths_start={}
     depths_start[0]=lastknown=startdate
+    
     for node,colNo in PreOrderWalkTree(xmltree):
         
         depths_start[colNo+1]=depths_start[colNo]#lastknown
@@ -246,20 +279,38 @@ def CreateCSV(xmltree,startdate):
         m=re.search("(^.*)\:\s*([0-9\.]+\s*[dhmw]\s*$)",node_text)
         
         if m:
-            node_text=m.group(1)
+            node_text=m.group(1).strip()
+            path=text_path_from_node(node)[1:]
             dur=ConvertToDay(m.group(2)).replace('d','')
             sdate=depths_start[colNo]
             edate=add_days(depths_start[colNo],float(dur)*7.0/5.0)
             
-            sh+="{Subject},{Start},{End},{AllDayEvent},{Description},{Location},{Private}\n".\
-              format(Subject=node_text,Start=csvdate(sdate),End=csvdate(edate),\
-                     AllDayEvent="False",Description='"None"',Location='"default"',Private="True")
+            local_edate=add_hours(depths_start[colNo],1.0)#float(dur))
+            #sh+="{Subject},{Start},{End},{AllDayEvent},{Description},{Location},{Private}\n".\
+            #  format(Subject=node_text,Start=csvdate(sdate),End=csvdate(local_edate),\
+            #         AllDayEvent="False",Description='"None"',Location='"default"',Private="True")
+            if not node.hasChildNodes():
+                if colNo>2:
+                    desc=".".join(path)
+                    subj= desc if len(desc)<64 else node_text
+
+                    if (edate-sdate).days>1:
+                        line="{Subject},{Start},{Description}\n".format(Subject='"%s:%d - %s"'%("Begin",colNo-3,subj),\
+                                                                        Start=csvday(sdate),
+                                                                        Description=desc)
+                        line+="{Subject},{Start},{Description}\n".format(Subject='"%s:%d - %s"'%("End",colNo-3,subj),\
+                                                                        Start=csvday(edate),
+                                                                        Description=desc)
+                        sh+=line
+                    else:
+                        line="{Subject},{Start},{Description}\n".format(Subject='"%d - %s"'%(colNo-3,subj),\
+                                                                        Start=csvday(sdate),
+                                                                        Description=desc)
+                        sh+=line
+                        
+                    print line,
+                    
             depths_start[colNo]=edate
-            #lastknown=sdate
-            #if not node.hasChildNodes():
-                
-                #dur
-                #float(dur)*7.0/5.0
     return sh
         
 def ConvertToDay(arg):
