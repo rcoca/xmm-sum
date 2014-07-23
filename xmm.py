@@ -293,10 +293,11 @@ def CreateCSV(xmltree,startdate):
                 if colNo>2:
                     desc=".".join(path)
                     subj= desc if len(desc)<64 else node_text
-
+                    start_d=sdate
+                    start_d.replace(hour=9,minute=0)
                     if (edate-sdate).days>1:
                         line="{Subject},{Start},{Description}\n".format(Subject='"%s:%d - %s"'%("Begin",colNo-3,subj),\
-                                                                        Start=csvday(sdate),
+                                                                        Start=csvday(start_d),
                                                                         Description=desc)
                         line+="{Subject},{Start},{Description}\n".format(Subject='"%s:%d - %s"'%("End",colNo-3,subj),\
                                                                         Start=csvday(edate),
@@ -304,7 +305,7 @@ def CreateCSV(xmltree,startdate):
                         sh+=line
                     else:
                         line="{Subject},{Start},{Description}\n".format(Subject='"%d - %s"'%(colNo-3,subj),\
-                                                                        Start=csvday(sdate),
+                                                                        Start=csvday(start_d),
                                                                         Description=desc)
                         sh+=line
                         
