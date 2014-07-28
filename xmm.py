@@ -67,7 +67,7 @@ import re
 def MergeEstimMMap(xmltree,paths):
     for path in paths:
         Path=path.strip()
-        m=re.search("^([A-z\.0-9\:\s]+)\s+\-\s*([0-9\.?]+\s*[A-z?]+\s*)$",Path)
+        m=re.search("^([A-z\.0-9\:\s]+)\s+\-\s*(-?\s*[0-9\.?]+\s*[A-z?]+\s*)$",Path)
         if m:
             #print "found path=",path,m.groups()
             pathname=m.group(1).strip()
@@ -82,7 +82,7 @@ def ExtractEstimTxt(xmltree,paths,p=True,FD=sys.stdout,ret=False):
     estim_paths   =[]
     unk_paths     =[]
     head_rex="^([A-z\.0-9,\:\s/\(\)?\-&]+)\s*"
-    estim_rex="\:\s*([0-9\.?]+\s*[A-z?]+\s*)$"
+    estim_rex="\:\s*(-?\s*[0-9\.?]+\s*[A-z?]+\s*)$"
     for path in paths:
         m=re.search(head_rex+estim_rex,path)
         if m:
@@ -156,7 +156,7 @@ def text_path_from_node(leaf):
             newpath.append(c)
         else:break
     newpath=filter(lambda x:isTextNode(x),newpath)
-    newpath=map(lambda x:re.search("(^.*)\:\s*([0-9\.]+\s*[dhmw]\s*$)",x.getAttribute('TEXT').encode('ascii')).group(1).strip(),newpath)
+    newpath=map(lambda x:re.search("(^.*)\:\s*(-?\s*[0-9\.]+\s*[dhmw]\s*$)",x.getAttribute('TEXT').encode('ascii')).group(1).strip(),newpath)
     return newpath[::-1]
     
 def PreOrderWalkTree(root,depth=0):
@@ -214,7 +214,7 @@ def CreateXLS(xmltree):
         if not isTextNode(node):continue
         node_text=node.getAttribute('TEXT').encode('ascii')
         #print (colNo-depth)*' ',node_text,color_list[(lineNo%len(color_list))]
-        m=re.search("(^.*)\:\s*([0-9\.]+\s*[dhmw]\s*$)",node_text)
+        m=re.search("(^.*)\:\s*(-?\s*[0-9\.]+\s*[dhmw]\s*$)",node_text)
 
         style   = pyExcelerator.XFStyle()
         color=color_list[(lineNo%len(color_list))]
@@ -276,7 +276,7 @@ def CreateCSV(xmltree,startdate):
         
         if not isTextNode(node):continue
         node_text=node.getAttribute('TEXT').encode('ascii')
-        m=re.search("(^.*)\:\s*([0-9\.]+\s*[dhmw]\s*$)",node_text)
+        m=re.search("(^.*)\:\s*(-?\s*[0-9\.]+\s*[dhmw]\s*$)",node_text)
         
         if m:
             node_text=m.group(1).strip()
@@ -334,7 +334,7 @@ def UpdateSumEstim(xmltree):
                 #get arity operands from stack
                 while k!=used[-1]: nused.append(used.pop(-1))
                 xx=map(lambda x:x!=k and x.getAttribute('TEXT'),nused)
-                collect=filter(None,map(lambda x:re.search("\:\s*([0-9\.]+\s*[dhmw]\s*$)",x),xx))
+                collect=filter(None,map(lambda x:re.search("\:\s*(-?\s*[0-9\.]+\s*[dhmw]\s*$)",x),xx))
                 collect=map(lambda x:ConvertToDay(x.groups(0)[0]),collect)
 
                 if  k.hasChildNodes():
@@ -342,7 +342,7 @@ def UpdateSumEstim(xmltree):
                     childrenSum=sum(map(float,collect))
                     #inline update result
                     #print collect,childrenSum
-                    newval=re.sub('\:\s*[0-9\.]+\s*[dhmw]','',k.getAttribute('TEXT'))
+                    newval=re.sub('\:\s*-?\s*[0-9\.]+\s*[dhmw]','',k.getAttribute('TEXT'))
                     uval="%s:%3.3f d"%(newval,childrenSum)
                     k.setAttribute('TEXT',uval)
                     nused=[]
