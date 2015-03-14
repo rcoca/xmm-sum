@@ -1,0 +1,1 @@
+sums up hierarchically estimations of activities in a mindmap
