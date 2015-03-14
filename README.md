@@ -10,3 +10,5 @@ Now it does excel too.
 xmm.py -u examples/TestProject.mm
 
 xmm.py -x examples/TestProject.mm
+
+There's a similar function in Xmind.
