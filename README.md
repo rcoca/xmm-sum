@@ -1,5 +1,5 @@
 # xmm-sum
-<h1>Introduction</h1>
+<21>Introduction</21>
 
 Mind-maps are great for divide-and-conquer problem solving. The python script provided loads a mindmap file for freemind (freeplane) and sums up estimations from leafs to root. 
 
