@@ -12,3 +12,5 @@ xmm.py -u examples/TestProject.mm
 xmm.py -x examples/TestProject.mm
 
 There's a similar function in Xmind.
+
+[![Analytics](https://ga-beacon.appspot.com/UA-44820255-12/xmm-sum/README.md)](https://github.com/rcoca/xmm-sum)
