@@ -1,7 +1,7 @@
 # xmm-sum
-##Introduction
+## Introduction
 
-Mind-maps are great for divide-and-conquer problem solving. The python script provided loads a mindmap file for freemind (freeplane) and sums up estimations from leafs to root. 
+Mind-maps are great for divide-and-conquer problem solving. The python script provided loads a mindmap file for freemind (freeplane) and sums up estimations from leaves to root. 
 
 ![alt tag](https://github.com/rcoca/xmm-sum/blob/master/examples/TestProject.png?raw=true)
 
